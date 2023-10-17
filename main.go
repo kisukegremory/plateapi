@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	plate "github.com/kisukegremory/plateapi/cmd/plate"
+	"github.com/kisukegremory/plateapi/auth"
+	plate "github.com/kisukegremory/plateapi/plate"
 )
 
-func PlateToQueue(c *gin.Context) {
+func PlateRoute(c *gin.Context) {
 	plate_string := c.Param("plate")
 	match, _ := plate.PlateValidate(plate_string)
 	switch match {
@@ -18,8 +19,30 @@ func PlateToQueue(c *gin.Context) {
 	}
 }
 
+func AuthRoute(c *gin.Context) {
+	token, err := auth.GenerateJwt()
+	if err != nil {
+		c.String(http.StatusUnauthorized, "Wrong Data")
+		return
+	}
+
+	c.SetCookie("Authorization", token, 3600*24*30, "", "", false, true)
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
+
+}
+
+func ValidateAuthRoute(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ValidAuthenticated",
+	})
+}
+
 func main() {
 	router := gin.Default()
-	router.GET("/v1/vehicles/:plate", PlateToQueue)
+	router.GET("/v1/auth", AuthRoute)
+	router.GET("/v1/auth/validate", auth.ValidationMiddleware, ValidateAuthRoute)
+	router.GET("/v1/vehicles/:plate", auth.ValidationMiddleware, PlateRoute)
 	router.Run()
 }

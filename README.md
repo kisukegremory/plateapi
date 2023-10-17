@@ -20,6 +20,9 @@ Vamos tentar estruturar como será feito o projeto:
 
 1. Criar uma API utilizando gin, com o endpoint de v1/vehicles/{plate} que valida a placa e retorna um json padrão, 202
 1. Adicionar um endpoint de autenticação que retorna um jwt válido por x minutos v1/auth
+    ```
+    Como o serviço só deve ser utilizado uma empresa, será consumido uma key única que gerará os jwt para serem utilizados como autenticação
+    ```
 1. Criar um docker-compose com o serviço do RabbitMQ
 1. Alterar o endpoint de plate para enviar uma requisição para a fila vehicles.search
 1. Criar um Consumer do rabbitMQ, que recebe a mensagem e busca na API Placa o modelo correspondente
