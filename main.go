@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kisukegremory/plateapi/auth"
+	"github.com/kisukegremory/plateapi/initializers"
 	plate "github.com/kisukegremory/plateapi/plate"
 )
 
@@ -37,6 +38,11 @@ func ValidateAuthRoute(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "ValidAuthenticated",
 	})
+}
+
+func init() {
+	initializers.ConnectToDB()
+	initializers.SyncDatabase()
 }
 
 func main() {
