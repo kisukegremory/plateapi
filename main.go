@@ -43,6 +43,10 @@ func ValidateAuthRoute(c *gin.Context) {
 func init() {
 	initializers.ConnectToDB()
 	initializers.SyncDatabase()
+	initializers.ConnectToBroker()
+	initializers.ConnectToChannel()
+	initializers.SyncMessageBroker()
+	initializers.SendMessage()
 }
 
 func main() {
@@ -51,4 +55,7 @@ func main() {
 	router.GET("/v1/auth/validate", auth.ValidationMiddleware, ValidateAuthRoute)
 	router.GET("/v1/vehicles/:plate", auth.ValidationMiddleware, PlateRoute)
 	router.Run()
+
+	defer initializers.ChannelConnection.Close()
+	defer initializers.BrokerConnection.Close()
 }
