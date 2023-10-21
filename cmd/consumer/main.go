@@ -30,7 +30,7 @@ func main() {
 
 	go func() {
 		for msg := range msgs {
-			log.Printf("Received a message: %s", msg.Body)
+			VehicleSearchConsumer(msg)
 		}
 	}()
 
