@@ -4,17 +4,20 @@ import (
 	"log"
 
 	"github.com/kisukegremory/plateapi/internal/broker"
+	"github.com/kisukegremory/plateapi/internal/db"
 )
 
 func init() {
 	broker.ConnectToBroker()
 	broker.ConnectToChannel()
 	broker.SyncMessageBroker()
+	db.ConnectToDB()
+	db.SyncDatabase()
 }
 
 func main() {
 
-	msgs, err := broker.ChannelConnection.Consume(
+	searchMsgs, err := broker.ChannelConnection.Consume(
 		broker.SearchQueue.Name,
 		"",
 		true,
@@ -23,14 +26,30 @@ func main() {
 		false,
 		nil,
 	)
+	broker.FailOnError(err, "Failed to register search consumer")
 
-	broker.FailOnError(err, "Failed to register a consumer")
+	storeMsgs, err := broker.ChannelConnection.Consume(
+		broker.StoreQueue.Name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	broker.FailOnError(err, "Failed to register store consumer")
 
 	var forever chan struct{}
 
 	go func() {
-		for msg := range msgs {
+		for msg := range searchMsgs {
 			VehicleSearchConsumer(msg)
+		}
+	}()
+
+	go func() {
+		for msg := range storeMsgs {
+			VehicleStoreConsumer(msg)
 		}
 	}()
 

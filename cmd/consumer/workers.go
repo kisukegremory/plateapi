@@ -7,6 +7,7 @@ import (
 
 	"github.com/kisukegremory/plateapi/internal/apiplaca"
 	"github.com/kisukegremory/plateapi/internal/broker"
+	"github.com/kisukegremory/plateapi/internal/db"
 	"github.com/kisukegremory/plateapi/internal/models"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -43,5 +44,17 @@ func VehicleSearchConsumer(msg amqp.Delivery) {
 
 	broker.PublishStore(vehicle)
 	broker.FailOnError(err, "Problems on Publishing the Vehicle Store Queue")
+
+}
+
+func VehicleStoreConsumer(msg amqp.Delivery) {
+	var err error
+	log.Printf("Received a message: %s", msg.Body)
+	var vehicle models.Vehicle
+	err = json.Unmarshal(msg.Body, &vehicle)
+	broker.FailOnError(err, "Problems on decoding the Vehicle")
+
+	db.DB.Create(&vehicle.Plate)
+	db.DB.Create(&vehicle.Attributes)
 
 }
