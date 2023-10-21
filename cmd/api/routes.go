@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/kisukegremory/plateapi/internal/auth"
 	"github.com/kisukegremory/plateapi/internal/broker"
+	"github.com/kisukegremory/plateapi/internal/db"
 	"github.com/kisukegremory/plateapi/internal/models"
 	plate "github.com/kisukegremory/plateapi/internal/plate"
 )
@@ -17,6 +19,16 @@ func PlateRoute(c *gin.Context) {
 	match, _ := plate.PlateValidate(plate_string)
 	if !match {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Wrong Plate"})
+	}
+
+	vehicleAttributes := models.VehicleAttributes{Plate: plate_string}
+
+	result := db.DB.First(&vehicleAttributes)
+
+	if result.Error == nil {
+		vehicleAttributesJson, _ := json.Marshal(vehicleAttributes)
+		c.AbortWithStatusJSON(200, string(vehicleAttributesJson))
+		return
 	}
 
 	vehicleRequest := models.VehiclePlates{
