@@ -10,6 +10,7 @@ import (
 	"github.com/kisukegremory/plateapi/internal/db"
 	"github.com/kisukegremory/plateapi/internal/models"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"gorm.io/gorm/clause"
 )
 
 func VehicleSearchConsumer(msg amqp.Delivery) {
@@ -54,7 +55,7 @@ func VehicleStoreConsumer(msg amqp.Delivery) {
 	err = json.Unmarshal(msg.Body, &vehicle)
 	broker.FailOnError(err, "Problems on decoding the Vehicle")
 
-	db.DB.Create(&vehicle.Plate)
+	db.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&vehicle.Plate)
 	db.DB.Create(&vehicle.Attributes)
 
 }
