@@ -24,12 +24,12 @@ Vamos tentar estruturar como será feito o projeto:
     Como o serviço só deve ser utilizado uma empresa, será consumido uma key única que gerará os jwt para serem utilizados como autenticação
     ```
 1. Criar um docker-compose com o serviço do RabbitMQ
+1. Adicionar no docker-compose o serviço do Mysql
 1. Alterar o endpoint de plate para enviar uma requisição para a fila vehicles.search
 1. Criar um Consumer do rabbitMQ, que recebe a mensagem e busca na API Placa o modelo correspondente
     1. Caso tenha sucesso, envia uma mensagem para a fila vehicles.store, com o objeto VehiclePlates e VehicleAttributes(Para serem consumidas na mesma transaction, e enviar problemas de existir objeto Plate e não Vehicle)
     1. Caso não tenha sucesso, envia uma mensagem para a fila vehicles.store, com o objeto Plate 
 1. Criar um serviço que receba as mensagens das filas vehicles.store
-1. Adicionar no docker-compose o serviço do Mysql
 1. Criar o ORM com Gorm e armazenar as informações nas tabelas VehiclePlates, VehicleAttributes
 1. Alterar o serviço da API para consultar a placa na base e:
     1. Caso exista VehiclePlates & VehicleAttributes, retornar o objeto VehicleAttributes

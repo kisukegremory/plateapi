@@ -2,22 +2,36 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/kisukegremory/plateapi/internal/auth"
 	"github.com/kisukegremory/plateapi/internal/initializers"
+	"github.com/kisukegremory/plateapi/internal/models"
 	plate "github.com/kisukegremory/plateapi/internal/plate"
 )
 
 func PlateRoute(c *gin.Context) {
 	plate_string := c.Param("plate")
 	match, _ := plate.PlateValidate(plate_string)
-	switch match {
-	case true:
-		c.String(http.StatusAccepted, ("Sent to queue: " + plate_string))
-	case false:
-		c.String(http.StatusBadRequest, "Wrong Plate")
+	if !match {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Wrong Plate"})
 	}
+
+	vehicleRequest := models.VehiclePlates{
+		ID:      uuid.NewString(), // in the future we change to uuid4
+		UserId:  uuid.NewString(),
+		Plate:   plate_string,
+		Created: time.Now(),
+	}
+
+	err := initializers.SendMessage(vehicleRequest)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Problems on publishing the message"})
+	}
+	c.String(http.StatusAccepted, ("Sent to queue: " + plate_string))
 }
 
 func AuthRoute(c *gin.Context) {
@@ -46,7 +60,6 @@ func init() {
 	initializers.ConnectToBroker()
 	initializers.ConnectToChannel()
 	initializers.SyncMessageBroker()
-	initializers.SendMessage()
 }
 
 func main() {

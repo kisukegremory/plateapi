@@ -2,12 +2,9 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type VehicleAttributes struct {
-	gorm.Model
 	Plate        string `gorm:"PrimaryKey"`
 	Year         uint32
 	ModelYear    uint32
