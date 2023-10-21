@@ -26,7 +26,7 @@ func PlateRoute(c *gin.Context) {
 		Created: time.Now(),
 	}
 
-	err := broker.SendMessage(vehicleRequest)
+	err := broker.PublishPlate(vehicleRequest)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Problems on publishing the message"})

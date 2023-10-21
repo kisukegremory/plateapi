@@ -15,7 +15,6 @@ type VehicleAttributes struct {
 	Uf           string
 	City         string
 	Color        string
-	Seats        uint8
-	Fuel         string
+	Origin       string
 	Created      time.Time `gorm:"index"`
 }

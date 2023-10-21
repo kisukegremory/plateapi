@@ -8,8 +8,8 @@ type VehicleAttributesAPI struct {
 	VehicleModel string `json:"MODELO"`
 	SubModel     string `json:"SUBMODELO"`
 	Version      string `json:"VERSAO"`
-	Color        string `json:"cor"`
 	Uf           string `json:"uf"`
 	City         string `json:"municipio"`
+	Color        string `json:"cor"`
 	Origin       string `json:"Origem"`
 }

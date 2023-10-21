@@ -15,7 +15,7 @@ func init() {
 func main() {
 
 	msgs, err := broker.ChannelConnection.Consume(
-		broker.Queue.Name,
+		broker.SearchQueue.Name,
 		"",
 		true,
 		false,

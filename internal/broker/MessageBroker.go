@@ -1,13 +1,13 @@
 package broker
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
-
-var BrokerConnection *amqp.Connection
-var ChannelConnection *amqp.Channel
 
 func FailOnError(err error, msg string) {
 	if err != nil {
@@ -15,16 +15,25 @@ func FailOnError(err error, msg string) {
 	}
 }
 
-func ConnectToBroker() {
+func PublishJson(bindingKey string, body []byte) error {
 	var err error
-	BrokerConnection, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
-	FailOnError(err, "Failed to Connect to Broker")
-	log.Println("Sucessfully Connect to Broker")
-}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-func ConnectToChannel() {
-	var err error
-	ChannelConnection, err = BrokerConnection.Channel()
-	FailOnError(err, "Failed to Connect to Broker Channel")
-	log.Println("Sucessfully Connect to Broker Channel")
+	err = ChannelConnection.PublishWithContext(
+		ctx,
+		"",
+		bindingKey,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		},
+	)
+
+	if err != nil {
+		return fmt.Errorf("problems on publishing in the queue: %v", err)
+	}
+	return nil
 }

@@ -1,20 +1,34 @@
 package broker
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"time"
+	"log"
 
-	"github.com/kisukegremory/plateapi/internal/models"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-var Queue *amqp.Queue
+var SearchQueue *amqp.Queue
+var StoreQueue *amqp.Queue
+
+var BrokerConnection *amqp.Connection
+var ChannelConnection *amqp.Channel
+
+func ConnectToBroker() {
+	var err error
+	BrokerConnection, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
+	FailOnError(err, "Failed to Connect to Broker")
+	log.Println("Sucessfully Connect to Broker")
+}
+
+func ConnectToChannel() {
+	var err error
+	ChannelConnection, err = BrokerConnection.Channel()
+	FailOnError(err, "Failed to Connect to Broker Channel")
+	log.Println("Sucessfully Connect to Broker Channel")
+}
 
 func SyncMessageBroker() {
 	var err error
-	vehicleQueue, err := ChannelConnection.QueueDeclare(
+	searchQueue, err := ChannelConnection.QueueDeclare(
 		"vehicles.search",
 		false,
 		false,
@@ -22,36 +36,18 @@ func SyncMessageBroker() {
 		false,
 		nil,
 	)
-	FailOnError(err, "Failed to Declare Vehicle Queue")
-	Queue = &vehicleQueue
+	FailOnError(err, "Failed to Declare Search Queue")
+	SearchQueue = &searchQueue
 
-}
-
-func SendMessage(vehicle models.VehiclePlates) error {
-
-	msgBody, err := json.Marshal(vehicle)
-
-	if err != nil {
-		return fmt.Errorf("problems on parsing the json: %v", err)
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err = ChannelConnection.PublishWithContext(
-		ctx,
-		"",
-		Queue.Name,
+	storeQueue, err := ChannelConnection.QueueDeclare(
+		"vehicles.store",
 		false,
 		false,
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        msgBody,
-		},
+		false,
+		false,
+		nil,
 	)
+	FailOnError(err, "Failed to Declare Store Queue")
+	StoreQueue = &storeQueue
 
-	if err != nil {
-		return fmt.Errorf("problems on publishing in the queue: %v", err)
-	}
-
-	return nil
 }
