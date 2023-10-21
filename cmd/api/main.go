@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kisukegremory/plateapi/auth"
-	"github.com/kisukegremory/plateapi/initializers"
-	plate "github.com/kisukegremory/plateapi/plate"
+	"github.com/kisukegremory/plateapi/internal/auth"
+	"github.com/kisukegremory/plateapi/internal/initializers"
+	plate "github.com/kisukegremory/plateapi/internal/plate"
 )
 
 func PlateRoute(c *gin.Context) {

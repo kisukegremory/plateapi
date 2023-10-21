@@ -3,7 +3,7 @@ package auth_test
 import (
 	"testing"
 
-	"github.com/kisukegremory/plateapi/auth"
+	"github.com/kisukegremory/plateapi/internal/auth"
 )
 
 func TestGenerateToken(t *testing.T) {

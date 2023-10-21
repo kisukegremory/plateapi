@@ -1,6 +1,6 @@
 package initializers
 
-import "github.com/kisukegremory/plateapi/models"
+import "github.com/kisukegremory/plateapi/internal/models"
 
 func SyncDatabase() {
 	DB.AutoMigrate(&models.VehiclePlates{})

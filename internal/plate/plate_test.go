@@ -3,7 +3,7 @@ package plate_test
 import (
 	"testing"
 
-	plate "github.com/kisukegremory/plateapi/plate"
+	plate "github.com/kisukegremory/plateapi/internal/plate"
 )
 
 func TestPlateValidate(t *testing.T) {
