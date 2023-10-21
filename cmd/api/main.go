@@ -7,7 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/kisukegremory/plateapi/internal/auth"
-	"github.com/kisukegremory/plateapi/internal/initializers"
+	"github.com/kisukegremory/plateapi/internal/broker"
+	"github.com/kisukegremory/plateapi/internal/db"
 	"github.com/kisukegremory/plateapi/internal/models"
 	plate "github.com/kisukegremory/plateapi/internal/plate"
 )
@@ -26,7 +27,7 @@ func PlateRoute(c *gin.Context) {
 		Created: time.Now(),
 	}
 
-	err := initializers.SendMessage(vehicleRequest)
+	err := broker.SendMessage(vehicleRequest)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Problems on publishing the message"})
@@ -55,11 +56,11 @@ func ValidateAuthRoute(c *gin.Context) {
 }
 
 func init() {
-	initializers.ConnectToDB()
-	initializers.SyncDatabase()
-	initializers.ConnectToBroker()
-	initializers.ConnectToChannel()
-	initializers.SyncMessageBroker()
+	db.ConnectToDB()
+	db.SyncDatabase()
+	broker.ConnectToBroker()
+	broker.ConnectToChannel()
+	broker.SyncMessageBroker()
 }
 
 func main() {
@@ -69,6 +70,6 @@ func main() {
 	router.GET("/v1/vehicles/:plate", auth.ValidationMiddleware, PlateRoute)
 	router.Run()
 
-	defer initializers.ChannelConnection.Close()
-	defer initializers.BrokerConnection.Close()
+	defer broker.ChannelConnection.Close()
+	defer broker.BrokerConnection.Close()
 }
