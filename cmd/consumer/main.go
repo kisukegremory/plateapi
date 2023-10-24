@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 
 	"github.com/kisukegremory/plateapi/internal/broker"
 	"github.com/kisukegremory/plateapi/internal/db"
@@ -53,7 +53,7 @@ func main() {
 		}
 	}()
 
-	log.Printf("* Waiting for messages")
+	slog.Info("* Waiting for messages")
 	<-forever
 
 	defer broker.ChannelConnection.Close()

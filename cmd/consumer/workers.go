@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/kisukegremory/plateapi/internal/apiplaca"
@@ -15,7 +15,7 @@ import (
 
 func VehicleSearchConsumer(msg amqp.Delivery) {
 	var err error
-	log.Printf("Received a message: %s", msg.Body)
+	slog.Info("Received a message: %s", msg.Body)
 	var vehicleSimulation models.VehiclePlates
 	err = json.Unmarshal(msg.Body, &vehicleSimulation)
 	broker.FailOnError(err, "Problems on decoding the VehiclePlate")
@@ -23,7 +23,7 @@ func VehicleSearchConsumer(msg amqp.Delivery) {
 	var vehicleAttributes apiplaca.VehicleAttributesAPI
 	vehicleAttributes, err = apiplaca.GetVehicleAttributesByPlate(vehicleSimulation.Plate)
 	broker.FailOnError(err, "Problems on Finding the Vehicle")
-	log.Printf("Attributes found: %v", vehicleAttributes)
+	slog.Info("Attributes found: %v", vehicleAttributes)
 
 	vehicle := models.Vehicle{
 		Plate: vehicleSimulation,
@@ -50,7 +50,7 @@ func VehicleSearchConsumer(msg amqp.Delivery) {
 
 func VehicleStoreConsumer(msg amqp.Delivery) {
 	var err error
-	log.Printf("Received a message: %s", msg.Body)
+	slog.Info("Received a message: %s", msg.Body)
 	var vehicle models.Vehicle
 	err = json.Unmarshal(msg.Body, &vehicle)
 	broker.FailOnError(err, "Problems on decoding the Vehicle")

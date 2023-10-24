@@ -3,7 +3,7 @@ package broker
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -11,7 +11,8 @@ import (
 
 func FailOnError(err error, msg string) {
 	if err != nil {
-		log.Panicf("%s : %s", msg, err)
+		slog.Error("%s : %s", msg, err)
+		panic("Shutdown the program due problems on consumer")
 	}
 }
 
