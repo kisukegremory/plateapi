@@ -2,6 +2,7 @@ package broker
 
 import (
 	"log/slog"
+	"os"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -14,7 +15,8 @@ var ChannelConnection *amqp.Channel
 
 func ConnectToBroker() {
 	var err error
-	BrokerConnection, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
+	brokerDsn := os.Getenv("RABBIT_DSN")
+	BrokerConnection, err = amqp.Dial(brokerDsn)
 	FailOnError(err, "Failed to Connect to Broker")
 	slog.Info("Sucessfully Connect to Broker")
 }

@@ -8,12 +8,54 @@ services:
       POSTGRES_PASSWORD: "postgresspass"
     ports:
       - 5432:5432
+    networks:
+      - default-network
   rabbit:
     image: rabbitmq:management
     container_name: rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 6s
+      timeout: 30s
+      retries: 3
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      - default-network
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - 8080:8080
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    networks:
+      - default-network
+    environment:
+      - CARAPI_SECRET=${CARAPI_SECRET}
+      - APIPLACA_TOKEN=${APIPLACA_TOKEN}
+      - RABBIT_DSN=${RABBIT_DSN}
+      - DB_DSN=${DB_DSN}
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    networks:
+      - default-network
+    environment:
+      - CARAPI_SECRET=${CARAPI_SECRET}
+      - APIPLACA_TOKEN=${APIPLACA_TOKEN}
+      - RABBIT_DSN=${RABBIT_DSN}
+      - DB_DSN=${DB_DSN}
+networks:
+  default-network:
+    driver: bridge
